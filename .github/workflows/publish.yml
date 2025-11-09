@@ -1,0 +1,42 @@
+name: Publish to NPM
+
+on:
+  workflow_call:
+    outputs:
+      version:
+        description: "The package version that was published"
+        value: ${{ jobs.publish.outputs.version }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version-check.outputs.current_version }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org"
+      - run: npm ci
+      - run: npm run build
+      # Create Access Tokens type Granular Access Token (for 2FA Account instead using npm publish --otp=${{ secrets.LEO_NPM_OTP }})
+      - name: Check version and publish if new
+        id: version-check
+        run: |
+          # Get both version AND name from package.json
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+          # Use the correct PACKAGE_NAME variable to check npm
+          if npm view "${PACKAGE_NAME}@${CURRENT_VERSION}" version > /dev/null 2>&1; then
+            echo "Version ${CURRENT_VERSION} of ${PACKAGE_NAME} already exists. Skipping publish."
+          else
+            echo "Publishing new version ${CURRENT_VERSION} of ${PACKAGE_NAME}..."
+            npm publish
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

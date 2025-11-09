@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+     "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "d:/DevSpaces/LEOWS/mcp-client-kit"
+      ]
+    },
+    "canva-dev": {
+      "command": "npx",
+      "args": ["-y", "@canva/cli@latest", "mcp"]
+    },
+    "leo-mcp": {
+      "type": "sse",
+      "url": "http://localhost:3000/sse",
+      "headers": {
+        "Authorization": "Bearer leo-dGluaHRkLmluZm9AZ21haWwuY29t"
+      }
+    }
+  }
+}

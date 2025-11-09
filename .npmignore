@@ -1,0 +1,43 @@
+# Source files (only include built files)
+src/
+tests/
+examples/
+docs/
+
+# Configuration files
+tsconfig.json
+jest.config.js
+.eslintrc.js
+.prettierrc
+
+# Test and build artifacts
+coverage/
+*.tsbuildinfo
+
+# Development files
+.git/
+.github/
+.vscode/
+.idea/
+
+# Config files not needed in package
+mcp_servers.json
+mcp_servers_test.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+
+# Keep these files (commented for reference)
+# README.md - included
+# LICENSE - included
+# build/ - included
+# package.json - included automatically

@@ -1,0 +1,27 @@
+name: Create GitHub Release
+
+on:
+  workflow_call:
+    # Define the inputs that this workflow accepts
+    inputs:
+      version:
+        description: 'The package version for the release'
+        required: true
+        type: string
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      # We only need to create the release, no need to checkout code again
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ inputs.version }}
+          release_name: Release v${{ inputs.version }}
+          body: |
+            Auto-generated release for version v${{ inputs.version }}
+            Changelogs: https://github.com/leotrinh/mcp-client-kit/blob/main/docs/CHANGE_LOGS.MD
+            Latest PR: ${{ steps.find-pr.outputs.url }}
