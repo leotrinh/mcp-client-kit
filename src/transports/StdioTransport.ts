@@ -91,7 +91,13 @@ export class StdioTransport extends BaseTransport {
     }
 
     return new Promise((resolve, reject) => {
-      this.process!.stdin!.write(message + '\n', (error) => {
+      const stdin = this.process?.stdin;
+      if (!stdin) {
+        reject(new Error('Process stdin not available'));
+        return;
+      }
+
+      stdin.write(message + '\n', (error) => {
         if (error) {
           reject(error);
         } else {

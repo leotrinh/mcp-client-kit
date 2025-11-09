@@ -8,10 +8,15 @@ import { validateResponse, isErrorResponse } from '../utils/jsonrpc';
 export abstract class BaseTransport implements ITransport {
   protected connected: boolean = false;
   protected pendingRequests: Map<string | number, {
-    resolve: (value: JsonRpcResponse<any>) => void;
+    resolve: (value: JsonRpcResponse<unknown>) => void;
     reject: (reason: unknown) => void;
     timeout: NodeJS.Timeout;
   }> = new Map();
+
+  // Helper method to get pending request with proper typing
+  private getPendingRequest(id: string | number) {
+    return this.pendingRequests.get(id);
+  }
   protected readonly requestTimeout: number = 30000; // 30 seconds
 
   abstract connect(): Promise<void>;
@@ -33,7 +38,12 @@ export abstract class BaseTransport implements ITransport {
         reject(new Error(`Request ${request.id} timed out after ${this.requestTimeout}ms`));
       }, this.requestTimeout);
 
-      this.pendingRequests.set(request.id, { resolve, reject, timeout });
+      // Store with type assertion since we know the resolve will be called with the correct type
+      this.pendingRequests.set(request.id, { 
+        resolve: resolve as (value: JsonRpcResponse<unknown>) => void, 
+        reject, 
+        timeout 
+      });
 
       this.sendMessage(JSON.stringify(request))
         .catch((error) => {
@@ -48,10 +58,14 @@ export abstract class BaseTransport implements ITransport {
     try {
       const response = validateResponse(JSON.parse(data));
 
-      const pending = this.pendingRequests.get(response.id!);
+      if (!response.id) {
+        return;
+      }
+
+      const pending = this.pendingRequests.get(response.id);
       if (pending) {
         clearTimeout(pending.timeout);
-        this.pendingRequests.delete(response.id!);
+        this.pendingRequests.delete(response.id);
 
         if (isErrorResponse(response)) {
           pending.reject(new Error(`JSON-RPC error ${response.error.code}: ${response.error.message}`));
@@ -66,7 +80,7 @@ export abstract class BaseTransport implements ITransport {
 
   protected cleanup(): void {
     // Reject all pending requests
-    for (const [id, pending] of this.pendingRequests) {
+    for (const [, pending] of this.pendingRequests) {
       clearTimeout(pending.timeout);
       pending.reject(new Error('Transport disconnected'));
     }

@@ -233,23 +233,6 @@ npm run lint
 ```
 
 ## Architecture
-
-```
-src/
-├── types/           # TypeScript type definitions
-│   └── index.ts     # Core interfaces and types
-├── transports/      # Transport layer implementations
-│   ├── BaseTransport.ts
-│   ├── SseTransport.ts
-│   ├── HttpStreamTransport.ts
-│   └── StdioTransport.ts
-├── client/          # Main client implementation
-│   └── McpClient.ts
-├── utils/           # Utility functions
-│   └── jsonrpc.ts   # JSON-RPC 2.0 utilities
-└── index.ts         # Main entry point
-```
-
 For more detailed architecture information, see [PROJECT_STRUCTURE.md](./docs/PROJECT_STRUCTURE.md).
 
 ## Documentation

@@ -44,7 +44,7 @@ export class SseTransport extends BaseTransport {
         let receivedEvent = false;
 
         // Listen for the endpoint event to get the message endpoint with sessionId
-        this.eventSource.addEventListener('endpoint', (event: any) => {
+        this.eventSource.addEventListener('endpoint', (event: MessageEvent) => {
           receivedEvent = true;
           this.messageEndpoint = event.data;
           this.connected = true;
@@ -52,16 +52,17 @@ export class SseTransport extends BaseTransport {
         });
 
         // Also listen for 'open' event as fallback
-        this.eventSource.addEventListener('open', (event: any) => {
+        
+        this.eventSource.addEventListener('open', () => {
           console.log('[SseTransport] Connection opened');
         });
 
-        this.eventSource.onmessage = (event: any) => {
+        this.eventSource.onmessage = (event: MessageEvent) => {
           receivedEvent = true;
           this.handleResponse(event.data);
         };
 
-        this.eventSource.onerror = (error: any) => {
+        this.eventSource.onerror = (error: Event) => {
           // Only reject on initial connection error
           // After connection, just log the error
           if (!this.connected && !receivedEvent) {
@@ -71,11 +72,12 @@ export class SseTransport extends BaseTransport {
             // Get more details about the error
             let errorMessage = `Failed to connect to SSE endpoint: ${this.url}`;
             if (error && typeof error === 'object') {
-              if ('status' in error) {
-                errorMessage += ` (HTTP ${error.status})`;
+              const errorObj = error as { status?: number; message?: string };
+              if (errorObj.status) {
+                errorMessage += ` (HTTP ${errorObj.status})`;
               }
-              if ('message' in error && error.message) {
-                errorMessage += ` - ${error.message}`;
+              if (errorObj.message) {
+                errorMessage += ` - ${errorObj.message}`;
               }
             }
 
