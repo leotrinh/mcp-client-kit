@@ -26,7 +26,7 @@ export class McpClient implements IMcpClient {
    * Create a new MCP Client instance
    * @param configPath Path to mcp_servers.json configuration file
    */
-  constructor(private configPath: string) {}
+  constructor(private configPath: string) { }
 
   /**
    * Load configuration from file
@@ -152,6 +152,10 @@ export class McpClient implements IMcpClient {
     const resourcesPromises = Array.from(this.servers.entries()).map(
       async ([serverName, transport]): Promise<IAggregatedResource[]> => {
         try {
+          // Leo: return [] cause stdio transport does not support resources listing
+          if (transport instanceof StdioTransport) {
+            return [];
+          }
           const request = createRequest('resources/list', {});
           const response = await transport.sendRequest<{ resources: IMcpResource[] }>(request);
 
@@ -180,6 +184,10 @@ export class McpClient implements IMcpClient {
     const promptsPromises = Array.from(this.servers.entries()).map(
       async ([serverName, transport]): Promise<IAggregatedPrompt[]> => {
         try {
+          // Leo: return [] cause stdio transport does not support prompt listing
+          if (transport instanceof StdioTransport) {
+            return [];
+          }
           const request = createRequest('prompts/list', {});
           const response = await transport.sendRequest<{ prompts: IMcpPrompt[] }>(request);
 
