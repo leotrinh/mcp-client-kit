@@ -1,4 +1,6 @@
 # MCP Client Kit
+[![npm version](https://img.shields.io/npm/v/mcp-client-kit.svg)](https://www.npmjs.com/package/mcp-client-kit) [![npm downloads](https://img.shields.io/npm/dm/mcp-client-kit.svg)](https://www.npmjs.com/package/mcp-client-kit)
+
 ```mcp-client-kit``` A TypeScript/Node.js client library for connecting to multiple Model Context Protocol (MCP) servers and aggregating their capabilities through a unified interface.
 
 ## Features
